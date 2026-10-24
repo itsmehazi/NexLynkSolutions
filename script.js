@@ -178,3 +178,25 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorA
  // Public preview control only. No looping animation on a production site.
  window.NexLynkVenomDemo=()=>{demo=performance.now();start()};
 })();
+
+// NexLynkSolutions — WhatsApp Integration
+(() => {
+  const whatsappNumber = "923288192681";
+
+  const message =
+    "Hi NexLynkSolutions! I'm interested in your Design or Business Development services. I'd like to discuss a project.";
+
+  const whatsappUrl =
+    `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+  document.querySelectorAll(".mini-cta .contact-button")
+    .forEach((button) => {
+      button.href = whatsappUrl;
+      button.target = "_blank";
+      button.rel = "noopener noreferrer";
+      button.setAttribute(
+        "aria-label",
+        "Start a conversation on WhatsApp"
+      );
+    });
+})();
