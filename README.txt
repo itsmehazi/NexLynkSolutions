@@ -1,1 +1,0 @@
-NexLynkSolutions V8: upload only these 7 files to the root of its GitHub repository. No images or contact.html need replacing. The button appears in the lower lime-green CTA on Home, About, Work, Services and Process. This is an independently authored implementation inspired by the documented Nexus UI Venom Button states; not Nexus UI original source.
