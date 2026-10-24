@@ -46,7 +46,7 @@
 @media(prefers-reduced-motion:reduce){.nl-portfolio-mode{scroll-behavior:auto}.nl-process-progress>span{transition:none}.nl-portfolio-mode .project{opacity:1!important}}
 
 
-/* NEXLYNK · VENOM INTERACTION · V8 ===========================================
+/* NEXLYNK · VENOM INTERACTION · REFERENCE MOTION ===========================================
    Self-contained enhancement: CTA remains an ordinary accessible link.
    Only the lower CTA on Home/About/Work/Services/Process is affected.
    No changes to header, page layout, or design/business services. */
@@ -58,20 +58,38 @@
  color:#f6f4ef;background:linear-gradient(155deg,#363d38 0%,#191e1b 23%,#060a08 49%,#171d19 78%,#080c0a 100%);
  border:1px solid rgba(255,255,255,.17);box-shadow:inset 0 2px 1px rgba(255,255,255,.32),inset 0 -5px 7px #0008,0 14px 28px #0a170d30,0 3px 4px #0007;
  text-decoration:none;font-size:14px;letter-spacing:.01em;line-height:1.25;font-weight:700;
- transform:translate3d(var(--nl-pull-x,0px),var(--nl-pull-y,0px),0) scale(var(--nl-grab-scale,1))!important;
- transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .32s ease,filter .32s ease;
+ transform:none!important;
+ transition:box-shadow .2s ease,filter .2s ease;
  -webkit-tap-highlight-color:transparent;overflow:visible;
 }
 .mini-cta .contact-button.nl-venom-cta:before{content:"";pointer-events:none;position:absolute;inset:4px 18px auto;height:35%;border-radius:50%;background:linear-gradient(180deg,#fff5,#fff0);filter:blur(7px);opacity:.35}
 .mini-cta .contact-button.nl-venom-cta:after{content:"";pointer-events:none;position:absolute;left:13%;right:13%;bottom:6px;height:9px;border-radius:50%;box-shadow:0 2px 7px #000c;opacity:.8}
 .mini-cta .contact-button.nl-venom-cta .nl-venom-label{position:relative;z-index:2;font-size:15px;letter-spacing:-.015em;white-space:nowrap}
-.mini-cta .contact-button.nl-venom-cta .nl-venom-arrow{position:relative;z-index:2;display:grid;place-items:center;background:#c9f16e;color:#17221b;width:36px;height:36px;flex:0 0 36px;border-radius:50%;margin-left:20px;font-size:20px;font-weight:500;transition:transform .22s ease}
-.mini-cta .contact-button.nl-venom-cta:hover .nl-venom-arrow{transform:rotate(45deg)}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-arrow{position:relative;z-index:2;display:grid;place-items:center;background:#c9f16e;color:#17221b;width:36px;height:36px;flex:0 0 36px;border-radius:50%;margin-left:20px;font-size:20px;font-weight:500}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips{position:absolute;z-index:1;left:12%;right:12%;top:calc(100% - 2px);height:21px;pointer-events:none}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i{position:absolute;top:0;width:var(--drip-width);height:var(--drip-rest);border-radius:42% 58% 55% 45% / 10% 12% 72% 72%;background:linear-gradient(100deg,#030505 0%,#111615 34%,#29312f 47%,#080a0a 68%,#020303 100%);box-shadow:inset 1px 0 1px #929e9c55,0 1px 2px #0007;transform-origin:50% 0;opacity:.96}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i:after{content:"";position:absolute;left:30%;top:13%;width:1px;height:48%;border-radius:50%;background:linear-gradient(180deg,#d8e3e080,transparent);opacity:.8}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i:nth-child(1){left:5%;--drip-width:5px;--drip-rest:5px;--drip-long:18px;animation-delay:-.4s}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i:nth-child(2){left:19%;--drip-width:4px;--drip-rest:3px;--drip-long:12px;animation-delay:-1.5s}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i:nth-child(3){left:34%;--drip-width:7px;--drip-rest:7px;--drip-long:22px;animation-delay:-.9s}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i:nth-child(4){left:51%;--drip-width:4px;--drip-rest:4px;--drip-long:15px;animation-delay:-1.9s}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i:nth-child(5){left:67%;--drip-width:6px;--drip-rest:6px;--drip-long:20px;animation-delay:-.7s}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i:nth-child(6){left:82%;--drip-width:4px;--drip-rest:3px;--drip-long:13px;animation-delay:-1.2s}
+.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i:nth-child(7){left:96%;--drip-width:5px;--drip-rest:5px;--drip-long:17px;animation-delay:-1.7s}
+.mini-cta .contact-button.nl-venom-cta:hover .nl-venom-drips i,.mini-cta .contact-button.nl-venom-cta:focus-visible .nl-venom-drips i,.mini-cta .contact-button.nl-venom-cta.nl-grab-active .nl-venom-drips i{animation:nl-venom-drip 2.5s cubic-bezier(.42,0,.3,1) infinite}
+@keyframes nl-venom-drip{0%,12%{height:var(--drip-rest);transform:scaleY(.8);opacity:.8}40%{height:var(--drip-long);transform:scaleY(1);opacity:1}62%{height:var(--drip-long);transform:scaleY(1.04);opacity:1}78%{height:var(--drip-long);transform:translateY(10px) scaleY(.78);opacity:0}79%,100%{height:var(--drip-rest);transform:translateY(0) scaleY(.8);opacity:.8}}
 .mini-cta .contact-button.nl-venom-cta.nl-grab-active{filter:brightness(1.18);box-shadow:inset 0 2px 1px #ffffff70,inset 0 -5px 7px #0008,0 17px 34px #0a170d45,0 3px 4px #0009}
-.mini-cta .contact-button.nl-venom-cta:focus-visible{outline:3px solid #fff;outline-offset:5px}
-.nl-venom-layer{position:fixed;inset:0;width:100vw;height:100vh;z-index:9999;overflow:visible;pointer-events:none;opacity:0;transition:opacity .14s ease;contain:layout style}
+.mini-cta .contact-button.nl-venom-cta:focus-visible{outline:3px solid #95ce3d;outline-offset:5px}
+/* SVG geometry supplies the spring recoil; roots stay fixed inside the pill. */
+.nl-venom-layer{position:fixed;inset:0;width:100vw;height:100vh;z-index:12;overflow:visible;pointer-events:none;opacity:1;contain:layout style}
 .nl-venom-layer.nl-on{opacity:1}
-.nl-venom-layer .nl-venom-thread{fill:#080b09;stroke:#080b09;stroke-width:.6}
-.nl-venom-layer .nl-venom-hair{fill:none;stroke:#0b0f0c;stroke-width:.3;stroke-linecap:round;opacity:.82}
+.nl-venom-thread{fill:url(#nl-venom-liquid);stroke:#111817;stroke-width:.48;stroke-linejoin:round}
+.nl-venom-ridge{fill:url(#nl-venom-ridge);opacity:.9}
+.nl-venom-bloodline{fill:none;stroke:url(#nl-venom-blood);stroke-width:.9;stroke-linecap:round;stroke-dasharray:14 20 4 19;stroke-dashoffset:0;opacity:.78}
+.nl-venom-layer.nl-on .nl-venom-bloodline{animation:nl-venom-bloodflow 1.7s linear infinite}
+@keyframes nl-venom-bloodflow{to{stroke-dashoffset:-57}}
+.nl-venom-shine{fill:none;stroke:url(#nl-venom-glint);stroke-width:.8;stroke-linecap:round;opacity:.38}
 @media(max-width:700px){.mini-cta .contact-button.nl-venom-cta{min-width:0;width:100%;min-height:67px;padding:17px 22px}}
-@media(prefers-reduced-motion:reduce){.nl-venom-layer{display:none!important}.mini-cta .contact-button.nl-venom-cta .nl-venom-arrow{transition:none}}
+@media(prefers-reduced-motion:reduce){.mini-cta .contact-button.nl-venom-cta .nl-venom-drips i{animation:none!important;height:var(--drip-rest);transform:none}}
+@media(prefers-reduced-motion:reduce){.nl-venom-layer.nl-on .nl-venom-bloodline{animation:none}}
+

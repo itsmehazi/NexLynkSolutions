@@ -41,141 +41,185 @@ document.querySelectorAll('section.process').forEach(section=>{
  if(reduce)return;const bar=track.firstElementChild;let ticking=false;const update=()=>{const rect=section.getBoundingClientRect();const range=Math.max(1,rect.height+window.innerHeight*.45);bar.style.width=`${Math.max(0,Math.min(100,(window.innerHeight*.7-rect.top)/range*100))}%`;ticking=false};window.addEventListener('scroll',()=>{if(!ticking){requestAnimationFrame(update);ticking=true}},{passive:true});update();
 });
 // Contact CTA: slight pointer-follow movement on fine pointer devices only.
-if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorAll('.contact-button').forEach(btn=>{btn.classList.add('nl-cta-magnetic');btn.addEventListener('pointermove',e=>{const r=btn.getBoundingClientRect(),dx=(e.clientX-r.left-r.width/2)/r.width,dy=(e.clientY-r.top-r.height/2)/r.height;btn.style.transform=`translate(${dx*7}px,${dy*7}px)`});btn.addEventListener('pointerleave',()=>{btn.style.transform=''});btn.addEventListener('blur',()=>{btn.style.transform=''})});}
+if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorAll('.contact-button').forEach(btn=>{if(btn.closest('.mini-cta'))return;btn.classList.add('nl-cta-magnetic');btn.addEventListener('pointermove',e=>{const r=btn.getBoundingClientRect(),dx=(e.clientX-r.left-r.width/2)/r.width,dy=(e.clientY-r.top-r.height/2)/r.height;btn.style.transform=`translate(${dx*7}px,${dy*7}px)`});btn.addEventListener('pointerleave',()=>{btn.style.transform=''});btn.addEventListener('blur',()=>{btn.style.transform=''})});}
 })();
 
 
-/* NEXLYNK · VENOM INTERACTION V8
-   Inspired by the publicly documented Nexus UI Venom Button states.
-   Independently authored, not the proprietary/original component source.
-   SVG goo tendrils + spring cursor following + tension-triggered release.
-*/
-(()=>{
+/* Venom CTA: capture → tension → release → anchored spring recoil.
+   Reference: 10.mp4, especially the releases around 2.6–3.0s and 3.7–4.1s. */
+function initVenomCTA(anchor){
  'use strict';
- if(window.__nlVenom8) return; window.__nlVenom8=true;
- const anchor=document.querySelector('.mini-cta .contact-button');
- if(!anchor)return;
- anchor.classList.remove('venom-button','nl-cta-magnetic');
  anchor.classList.add('nl-venom-cta');
- const original=anchor.textContent.trim();
- anchor.innerHTML='<span class="nl-venom-label">Start a conversation</span><span class="nl-venom-arrow" aria-hidden="true">↗</span>';
- anchor.setAttribute('aria-label','Start a conversation');
- anchor.setAttribute('href','contact.html');
- const motion=matchMedia('(prefers-reduced-motion: reduce)');
- if(motion.matches)return;
- const ns='http://www.w3.org/2000/svg',N=18;
- const svg=document.createElementNS(ns,'svg');
- svg.setAttribute('class','nl-venom-layer');svg.setAttribute('aria-hidden','true');
- svg.setAttribute('width','100%');svg.setAttribute('height','100%');
- const paths=[],hairs=[];
- for(let i=0;i<N;i++){
-  const p=document.createElementNS(ns,'path');p.setAttribute('class','nl-venom-thread');svg.append(p);paths.push(p);
-  const h=document.createElementNS(ns,'path');h.setAttribute('class','nl-venom-hair');svg.append(h);hairs.push(h);
- }
- document.body.append(svg);
+ anchor.classList.remove('nl-cta-magnetic');
+ anchor.innerHTML='<span class="nl-venom-label">Start a conversation</span><span class="nl-venom-arrow" aria-hidden="true">↗</span><span class="nl-venom-drips" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>';
+ const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ const ns='http://www.w3.org/2000/svg';
+ const count=24,captureDistance=18,releaseDistance=115;
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
- const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
- const dist=(x,y)=>Math.hypot(x,y);
- let m={x:-1000,y:-1000},lastMouse={x:-1000,y:-1000};
- let glow=0,engaged=false,held=false,grabAt=0,releaseUntil=0,running=false,prev=performance.now(),demo=false,t=0;
- const state=Array.from({length:N},(_,i)=>({x:0,y:0,vx:0,vy:0,base:0,phase:i*1.67,w:[3.2,2.0,4.3,2.6,4.0,2.15,2.9][i%7],offset:(i-(N-1)/2)*4.2}));
- function closest(rect,x,y){
-  const cx=clamp(x,rect.left+16,rect.right-16),cy=clamp(y,rect.top+15,rect.bottom-15);
-  const dx=x-clamp(x,rect.left,rect.right),dy=y-clamp(y,rect.top,rect.bottom);
-  return {x:cx,y:cy,dist:dist(dx,dy)};
+ const random=i=>{const n=Math.sin(i*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+ const svg=document.createElementNS(ns,'svg');
+ svg.setAttribute('class','nl-venom-layer');
+ svg.setAttribute('aria-hidden','true');
+ svg.setAttribute('focusable','false');
+ const defs=document.createElementNS(ns,'defs');
+ defs.innerHTML='<linearGradient id="nl-venom-liquid" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#303938"/><stop offset=".12" stop-color="#111615"/><stop offset=".3" stop-color="#050707"/><stop offset=".48" stop-color="#171d1c"/><stop offset=".64" stop-color="#020303"/><stop offset=".82" stop-color="#202625"/><stop offset="1" stop-color="#050707"/></linearGradient><linearGradient id="nl-venom-ridge" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8b9998" stop-opacity=".02"/><stop offset=".45" stop-color="#c6d5d3" stop-opacity=".34"/><stop offset=".68" stop-color="#aebcbb" stop-opacity=".12"/><stop offset="1" stop-color="#8b9998" stop-opacity="0"/></linearGradient><linearGradient id="nl-venom-glint" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffffff" stop-opacity=".94"/><stop offset=".48" stop-color="#e3eeee" stop-opacity=".58"/><stop offset="1" stop-color="#aabec2" stop-opacity=".02"/></linearGradient><linearGradient id="nl-venom-blood" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#050606"/><stop offset=".32" stop-color="#25302f"/><stop offset=".52" stop-color="#080a0a"/><stop offset=".76" stop-color="#303a39"/><stop offset="1" stop-color="#050606"/></linearGradient>';
+ svg.append(defs);
+ const makePath=className=>{const p=document.createElementNS(ns,'path');p.setAttribute('class',className);svg.append(p);return p;};
+ const strands=Array.from({length:count},(_,i)=>({
+  body:makePath('nl-venom-thread'),ridge:makePath('nl-venom-ridge'),blood:makePath('nl-venom-bloodline'),shine:makePath('nl-venom-shine'),
+  u:0,v:0,x:0,y:0,vx:0,vy:0,
+  phase:random(i+1)*Math.PI*2,width:.35+random(i+31)*1.8,
+  bulgeAt:.18+random(i+211)*.66,bulge:.18+random(i+241)*.68,waveGain:.65+random(i+271)*1.2,
+  bulgeAt2:.12+random(i+331)*.78,bulge2:.18+random(i+351)*.72,
+  shineStart:2+Math.floor(random(i+371)*7),shineLength:3+Math.floor(random(i+391)*7),
+  orbitPhase:random(i+451)*Math.PI*2,orbitSpeed:.00022+random(i+471)*.0005,orbitRadius:1+random(i+491)*4,curlRadius:2+random(i+511)*7,
+  stiffness:740+random(i+71)*250,damping:15+random(i+91)*3
+ }));
+ document.body.append(svg);
+ let mode='idle',pointer={x:-10000,y:-10000,vx:0,vy:0,time:0},raf=0,previous=0,releasedAt=0,accumulator=0;
+ function distance(r,p){return Math.hypot(p.x-clamp(p.x,r.left,r.right),p.y-clamp(p.y,r.top,r.bottom));}
+ function root(s,r){return {x:r.left+s.u*r.width,y:r.top+s.v*r.height};}
+ function reset(){
+  if(raf)cancelAnimationFrame(raf);
+  raf=0;mode='idle';previous=0;accumulator=0;
+  svg.classList.remove('nl-on');
+  anchor.classList.remove('nl-grab-active');
+  strands.forEach(s=>{s.body.setAttribute('d','');s.ridge.setAttribute('d','');s.blood.setAttribute('d','');s.shine.setAttribute('d','');});
  }
- function attach(rect,p,i){
-  const centerX=(rect.left+rect.right)/2,centerY=(rect.top+rect.bottom)/2;
-  const dx=p.x-centerX,dy=p.y-centerY;
-  let bx,by,tx,ty;
-  if(Math.abs(dx/rect.width)>Math.abs(dy/rect.height)){
-   bx=dx>0?rect.right-6:rect.left+6;by=clamp(p.y,rect.top+21,rect.bottom-21);tx=0;ty=1;
-  }else{
-   bx=clamp(p.x,rect.left+31,rect.right-31);by=dy>0?rect.bottom-5:rect.top+5;tx=1;ty=0;
-  }
-  return {x:bx+tx*state[i].offset,y:by+ty*state[i].offset};
+ function capture(r){
+  // Fix roots along the top and bottom edges for the whole gesture; they never jump sides.
+  const half=count/2;
+  const spread=Math.max(0,r.width-30);
+  const centerX=(r.left+r.right)/2;
+  strands.forEach((s,i)=>{
+   const t=clamp(((i%half)+.5+(random(i+150)-.5)*1.15)/half,.025,.975);
+   s.u=(centerX-r.left+(t-.5)*spread)/r.width;
+   s.v=i<half?15/r.height:1-15/r.height;
+   const a=root(s,r);s.x=a.x;s.y=a.y;s.vx=0;s.vy=0;
+  });
+  mode='attached';svg.classList.add('nl-on');anchor.classList.add('nl-grab-active');
  }
- function pathFor(a,b,w,phase,clock){
-  const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy),nx=-dy/Math.max(1,L),ny=dx/Math.max(1,L);
-  if(L<2)return '';
-  const steps=17,upper=[],lower=[];
-  const drift=Math.sin(clock*.0025+phase)*Math.min(8,L*.10);
-  for(let j=0;j<=steps;j++){
-   const u=j/steps,curve=u*u*(3-2*u);
-   const offset=drift*Math.sin(u*Math.PI)*(.4+.6*u)+Math.sin((u*1.55+clock*.0006+phase)*Math.PI*2)*Math.sin(u*Math.PI)*Math.min(2.4,L*.015);
-   const x=a.x+dx*curve+nx*offset,y=a.y+dy*curve+ny*offset;
-   const taper=(1-u)**.9;let width=w*(.035+.68*taper) + (.12*Math.sin(u*12+phase)*Math.sin(u*Math.PI));
-   width=Math.max(.14,width);upper.push([x+nx*width,y+ny*width]);lower.push([x-nx*width,y-ny*width]);
+ function release(now){
+  if(mode!=='attached')return;
+  mode='recoil';releasedAt=now;anchor.classList.remove('nl-grab-active');
+  const r=anchor.getBoundingClientRect();
+  // A sharp impulse toward each fixed root produces a real opposite-side overshoot.
+  strands.forEach(s=>{const a=root(s,r);s.vx=(a.x-s.x)*7+s.vx*.08;s.vy=(a.y-s.y)*7+s.vy*.08;});
+ }
+ function curve(points,close=false){
+  if(!points.length)return '';
+  const f=n=>n.toFixed(2);
+  let d=`M${f(points[0].x)},${f(points[0].y)}`;
+  for(let j=0;j<points.length-1;j++){
+   const a=points[Math.max(0,j-1)],b=points[j],c=points[j+1],e=points[Math.min(points.length-1,j+2)];
+   d+=`C${f(b.x+(c.x-a.x)/6)},${f(b.y+(c.y-a.y)/6)} ${f(c.x-(e.x-b.x)/6)},${f(c.y-(e.y-b.y)/6)} ${f(c.x)},${f(c.y)}`;
   }
-  const pts=upper.concat(lower.reverse());return 'M'+pts.map(v=>v.map(n=>n.toFixed(1)).join(',')).join('L')+'Z';
+  return d+(close?'Z':'');
+ }
+ function render(r,now){
+  strands.forEach(s=>{
+   const a=root(s,r),dx=s.x-a.x,dy=s.y-a.y,length=Math.hypot(dx,dy);
+   if(length<.7){s.body.setAttribute('d','');s.ridge.setAttribute('d','');s.blood.setAttribute('d','');s.shine.setAttribute('d','');return;}
+   const nx=-dy/length,ny=dx/length,tension=clamp(length/releaseDistance,0,1);
+   // Slack curls become taut under load, as in the clip; they do not keep wriggling at full stretch.
+   const slack=(mode==='recoil'?2.3:2+22*(1-tension)**2)*Math.min(1,length/24);
+   const muscle=1+.045*Math.sin(now*.0035+s.phase);
+   const upper=[],lower=[],center=[],ridgeUpper=[],ridgeLower=[];
+   for(let j=0;j<=16;j++){
+    const u=j/16,envelope=Math.sin(Math.PI*u),tail=clamp((u-.70)/.30,0,1);
+    const wave=(Math.sin(u*Math.PI*(1.6+random(s.phase+2)*1.7)+s.phase+now*.0024)*.53+Math.sin(u*Math.PI*(4.2+random(s.phase+3)*3.4)-s.phase-now*.0031)*.31+Math.sin(u*Math.PI*8.6+s.phase*.73-now*.0043)*.16)*slack*envelope*s.waveGain;
+    const curl=(Math.sin(tail*Math.PI*3.4+s.orbitPhase+now*s.orbitSpeed)-Math.sin(s.orbitPhase+now*s.orbitSpeed))*s.curlRadius*tail*(1-tail)*2.2;
+    const p={x:a.x+dx*u+nx*(wave+curl),y:a.y+dy*u+ny*(wave+curl)};
+    const bulgeAt=s.bulgeAt+.018*Math.sin(now*.0011+s.phase);
+    const bulge=1+s.bulge*Math.exp(-(((u-bulgeAt)/.12)**2))+s.bulge2*Math.exp(-(((u-s.bulgeAt2)/.085)**2));
+    const ridge=.68+.32*Math.sin((u*4.8+s.phase+now*.00032)*Math.PI)**2;
+    const width=1.38*(.1+s.width*(1-u)**1.35*(1.55-.65*tension))*bulge*ridge*muscle*Math.min(1,length/8);
+    center.push(p);upper.push({x:p.x+nx*width,y:p.y+ny*width});lower.push({x:p.x-nx*width,y:p.y-ny*width});
+    const ridgeCenter={x:p.x+nx*width*.42,y:p.y+ny*width*.42},ridgeWidth=width*(.08+.12*envelope);
+    ridgeUpper.push({x:ridgeCenter.x+nx*ridgeWidth,y:ridgeCenter.y+ny*ridgeWidth});ridgeLower.push({x:ridgeCenter.x-nx*ridgeWidth,y:ridgeCenter.y-ny*ridgeWidth});
+   }
+   const outline=curve(upper.concat(lower.reverse()),true);
+   s.body.setAttribute('d',outline);
+   s.body.setAttribute('fill','url(#nl-venom-liquid)');
+   s.ridge.setAttribute('d',curve(ridgeUpper.concat(ridgeLower.reverse()),true));
+   s.blood.setAttribute('d',curve(center));
+   s.blood.style.strokeWidth=String(.65+random(s.phase+1171)*.65);
+   const glintStart=(s.shineStart+Math.floor(now/85))%center.length;
+   const glint=Array.from({length:s.shineLength},(_,j)=>{
+    const idx=(glintStart+j)%center.length,p=center[idx],u=idx/16,w=1.38*(.1+s.width*(1-u)**1.35*(1.55-.65*tension));
+    return {x:p.x+nx*w*(.28+.18*Math.sin(j+s.phase)),y:p.y+ny*w*(.28+.18*Math.sin(j+s.phase))};
+   });
+   s.shine.setAttribute('d',curve(glint));
+   s.shine.style.strokeWidth=String(.55+random(s.phase+411)*.8);
+   s.shine.style.opacity=String(.24+random(s.phase+431)*.4);
+  });
  }
  function frame(now){
-  running=false;const dt=Math.min((now-prev)/16.67,2.4);prev=now;t+=dt;
+  raf=0;
+  if(mode==='idle'||motion.matches){reset();return;}
   const r=anchor.getBoundingClientRect();
-  if(r.bottom < -400||r.top>innerHeight+400){ if(!demo){close();return;}}
-  if(demo){
-    const elapsed=(now-demo)/1000,period=6.2,k=elapsed%period,amplitude=smooth(0,.9,k)*(1-smooth(4.6,5.8,k));
-    if(elapsed>period){demo=false;m.x=-1000;m.y=-1000;}
-    m.x=(r.left+r.right)/2+Math.sin(k*1.3)*190*amplitude;
-    m.y=r.bottom+95+Math.sin(k*2.1)*60*amplitude;
+  if(r.bottom<0||r.top>window.innerHeight){reset();return;}
+  if(mode==='attached'&&distance(r,pointer)>releaseDistance)release(now);
+  const elapsed=previous?Math.min((now-previous)/1000,.04):1/60;
+  previous=now;
+  const dt=1/240;
+  accumulator+=elapsed;
+  const steps=Math.floor((accumulator+1e-9)/dt);
+  accumulator=Math.max(0,accumulator-steps*dt);
+  let settled=true;
+  for(let n=0;n<steps;n++){
+   strands.forEach(s=>{
+    const a=root(s,r),attached=mode==='attached';
+    const age=attached?Math.exp(-Math.max(0,now-pointer.time)/85):0;
+    const radius=s.orbitRadius,angle=s.orbitPhase+now*s.orbitSpeed;
+    const tx=attached?pointer.x+Math.cos(angle)*radius-clamp(pointer.vx*8,-14,14)*age:a.x;
+    const ty=attached?pointer.y+Math.sin(angle)*radius-clamp(pointer.vy*8,-14,14)*age:a.y;
+    const k=attached?2200+random(s.phase+180)*700:s.stiffness,c=attached?82:s.damping;
+    s.vx+=((tx-s.x)*k-s.vx*c)*dt;s.vy+=((ty-s.y)*k-s.vy*c)*dt;
+    s.x+=s.vx*dt;s.y+=s.vy*dt;
+   });
   }
-  const nearest=closest(r,m.x,m.y),d=nearest.dist;
-  const inRange=d<360 && m.y>r.top-410&&m.y<r.bottom+410;
-  if(inRange&& !engaged){engaged=true;grabAt=now;}
-  if(!inRange&&engaged){engaged=false;held=false;releaseUntil=now+380;}
-  let power=inRange ? 1-smooth(155,360,d) : Math.max(0,(releaseUntil-now)/380);
-  const grab=engaged && d<170;
-  const pull=1-smooth(35,360,d),towardX=m.x-(r.left+r.right)/2,towardY=m.y-(r.top+r.bottom)/2;
-  const towardLength=Math.hypot(towardX,towardY)||1;
-  anchor.style.setProperty('--nl-pull-x',`${towardX/towardLength*14*pull}px`);
-  anchor.style.setProperty('--nl-pull-y',`${towardY/towardLength*14*pull}px`);
-  anchor.style.setProperty('--nl-grab-scale',String(1+.055*pull));
-  anchor.classList.toggle('nl-grab-active',grab);
-  const tickGoo=power>0 || releaseUntil>now;
-  glow += ((tickGoo?1:0)-glow)*Math.min(1,.17*dt);
-  svg.classList.toggle('nl-on',inRange||releaseUntil>now);
-  let allRest=true;
-  for(let i=0;i<N;i++){
-   const s=state[i],a=attach(r,m,i);
-   const elastic=grab?1:clamp((360-d)/205,0,1);
-   const fingerOffsets=[[-14,-22],[-6,-26],[3,-24],[12,-20],[16,-11],[-12,-6],[8,2]];
-   const targetX=m.x+fingerOffsets[i][0],targetY=m.y+fingerOffsets[i][1];
-   let goal={x:a.x+(targetX-a.x)*elastic,y:a.y+(targetY-a.y)*elastic};
-   const wobble=Math.sin(t*.075+s.phase)*(.6+2.1*power);
-   const vx=m.x-a.x,vy=m.y-a.y,L=Math.hypot(vx,vy)||1;
-   goal.x+=-vy/L*wobble;goal.y+=vx/L*wobble;
-   if(!tickGoo){goal=a;}
-   const k=grab?(.055+i*.003):(.045+i*.002);const drag=.76;
-   s.vx=(s.vx+(goal.x-s.x)*k*dt)*Math.pow(drag,dt);
-   s.vy=(s.vy+(goal.y-s.y)*k*dt)*Math.pow(drag,dt);
-   s.x+=s.vx*dt;s.y+=s.vy*dt;
-   if(!s.base){s.base=1;s.x=a.x;s.y=a.y;}
-   const dest={x:s.x,y:s.y},D=dist(s.x-a.x,s.y-a.y);
-   const w=s.w*(.38+.62*power);
-   const display=D>3&&(inRange||releaseUntil>now);
-   paths[i].setAttribute('d',display?pathFor(a,dest,w,s.phase,now):'');
-   paths[i].style.opacity=String(clamp((glow*1.2),0,1));
-   // Hairline filaments create multiple distinct speeds at the fringe.
-   if(i%2===1&&display){
-    const midx=(a.x+dest.x)/2,midy=(a.y+dest.y)/2-3*Math.sin(t*.05+s.phase);
-    hairs[i].setAttribute('d',`M${(a.x+3).toFixed(1)},${(a.y+3).toFixed(1)} Q${(midx+4).toFixed(1)},${midy.toFixed(1)} ${(dest.x+(i-3)*3).toFixed(1)},${(dest.y+2).toFixed(1)}`);
-    hairs[i].style.opacity=String(glow*.55);
-   }else{hairs[i].setAttribute('d','');}
-   if(D>3 || Math.abs(s.vx)+Math.abs(s.vy)>1)allRest=false;
-  }
-  if(glow>.02 || (inRange||releaseUntil>now)||!allRest){running=true;requestAnimationFrame(frame)}
-  else close();
+  for(const s of strands){const a=root(s,r);if(Math.hypot(s.x-a.x,s.y-a.y)>.65||Math.hypot(s.vx,s.vy)>4)settled=false;}
+  render(r,now);
+  if(mode==='recoil'&&((now-releasedAt>260&&settled)||now-releasedAt>800)){reset();return;}
+  raf=requestAnimationFrame(frame);
  }
- function close(){svg.classList.remove('nl-on');engaged=false;held=false;anchor.classList.remove('nl-grab-active');anchor.style.setProperty('--nl-pull-x','0px');anchor.style.setProperty('--nl-pull-y','0px');anchor.style.setProperty('--nl-grab-scale','1');for(let i=0;i<N;i++){paths[i].setAttribute('d','');hairs[i].setAttribute('d','');} }
- function start(){if(!running){running=true;prev=performance.now();requestAnimationFrame(frame)}}
- function move(e){if(demo)demo=false; m.x=e.clientX;m.y=e.clientY;start();}
- anchor.addEventListener('pointerenter',move,{passive:true});
- anchor.addEventListener('pointermove',move,{passive:true});
+ function start(){if(!raf){previous=0;raf=requestAnimationFrame(frame);}}
+ function move(e){
+  if(e.pointerType==='touch'||motion.matches)return;
+  const now=performance.now(),dt=pointer.time?Math.max(1,now-pointer.time):16;
+  const vx=pointer.time?clamp((e.clientX-pointer.x)/dt,-2,2):0,vy=pointer.time?clamp((e.clientY-pointer.y)/dt,-2,2):0;
+  pointer.vx=pointer.vx*.58+vx*.42;pointer.vy=pointer.vy*.58+vy*.42;pointer.time=now;
+  pointer.x=e.clientX;pointer.y=e.clientY;
+  if(mode==='idle'&&distance(anchor.getBoundingClientRect(),pointer)<=captureDistance)capture(anchor.getBoundingClientRect());
+  if(mode==='attached'&&distance(anchor.getBoundingClientRect(),pointer)>releaseDistance)release(performance.now());
+  if(mode!=='idle')start();
+ }
  document.addEventListener('pointermove',move,{passive:true});
- document.addEventListener('pointerleave',()=>{m.x=-1000;m.y=-1000;start()});
- window.addEventListener('blur',()=>{m.x=-1000;m.y=-1000;demo=false;start()});
- window.addEventListener('scroll',()=>{if(engaged)start()},{passive:true});
- window.addEventListener('resize',()=>{if(engaged)start()},{passive:true});
- // Public preview control only. No looping animation on a production site.
- window.NexLynkVenomDemo=()=>{demo=performance.now();start()};
-})();
+ anchor.addEventListener('pointerenter',move,{passive:true});
+ let touchRelease=0;
+ anchor.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='touch'||motion.matches)return;
+  clearTimeout(touchRelease);
+  const r=anchor.getBoundingClientRect();pointer.x=e.clientX;pointer.y=e.clientY;pointer.time=performance.now();
+  if(mode==='idle')capture(r);
+  strands.forEach(s=>{s.x=pointer.x+(random(s.phase+981)-.5)*12;s.y=pointer.y+(random(s.phase+991)-.5)*12;});
+  start();
+  touchRelease=setTimeout(()=>{release(performance.now());if(mode!=='idle')start();},420);
+ },{passive:true});
+ anchor.addEventListener('pointerup',()=>{if(mode==='attached'){clearTimeout(touchRelease);touchRelease=setTimeout(()=>{release(performance.now());if(mode!=='idle')start();},100);}},{passive:true});
+ anchor.addEventListener('focus',()=>{
+  if(motion.matches||mode!=='idle')return;
+  const r=anchor.getBoundingClientRect();pointer.x=(r.left+r.right)/2;pointer.y=(r.top+r.bottom)/2;pointer.time=performance.now();capture(r);
+  strands.forEach(s=>{const a=root(s,r);s.x=a.x+(random(s.phase+1011)-.5)*9;s.y=a.y+(s.v<.5?-1:1)*(12+random(s.phase+1021)*24);});
+  start();touchRelease=setTimeout(()=>{release(performance.now());if(mode!=='idle')start();},360);
+ });
+ anchor.addEventListener('blur',()=>{clearTimeout(touchRelease);release(performance.now());if(mode!=='idle')start();});
+ document.addEventListener('pointerout',e=>{if(!e.relatedTarget){release(performance.now());if(mode!=='idle')start();}});
+ window.addEventListener('blur',()=>{release(performance.now());if(mode!=='idle')start();});
+ window.addEventListener('scroll',reset,{passive:true});
+ window.addEventListener('resize',reset,{passive:true});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)reset();});
+ motion.addEventListener('change',reset);
+}
+document.querySelectorAll('.mini-cta .contact-button').forEach(initVenomCTA);
