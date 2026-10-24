@@ -181,7 +181,7 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorA
 
 // NexLynkSolutions — WhatsApp Integration
 (() => {
-  const whatsappNumber = "+923288192681";
+  const whatsappNumber = "923288192681";
 
   const message =
     "Hi NexLynkSolutions! I'm interested in your Design or Business Development services. I'd like to discuss a project.";
