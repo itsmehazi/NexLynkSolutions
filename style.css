@@ -57,8 +57,9 @@
  min-height:72px;padding:20px 29px 20px 32px;min-width:320px;max-width:100%;border-radius:999px;
  color:#f6f4ef;background:linear-gradient(155deg,#363d38 0%,#191e1b 23%,#060a08 49%,#171d19 78%,#080c0a 100%);
  border:1px solid rgba(255,255,255,.17);box-shadow:inset 0 2px 1px rgba(255,255,255,.32),inset 0 -5px 7px #0008,0 14px 28px #0a170d30,0 3px 4px #0007;
- text-decoration:none;font-size:14px;letter-spacing:.01em;line-height:1.25;font-weight:700; transform:none!important;
- transition:box-shadow .32s ease,filter .32s ease;
+ text-decoration:none;font-size:14px;letter-spacing:.01em;line-height:1.25;font-weight:700;
+ transform:translate3d(var(--nl-pull-x,0px),var(--nl-pull-y,0px),0) scale(var(--nl-grab-scale,1))!important;
+ transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .32s ease,filter .32s ease;
  -webkit-tap-highlight-color:transparent;overflow:visible;
 }
 .mini-cta .contact-button.nl-venom-cta:before{content:"";pointer-events:none;position:absolute;inset:4px 18px auto;height:35%;border-radius:50%;background:linear-gradient(180deg,#fff5,#fff0);filter:blur(7px);opacity:.35}
@@ -66,14 +67,11 @@
 .mini-cta .contact-button.nl-venom-cta .nl-venom-label{position:relative;z-index:2;font-size:15px;letter-spacing:-.015em;white-space:nowrap}
 .mini-cta .contact-button.nl-venom-cta .nl-venom-arrow{position:relative;z-index:2;display:grid;place-items:center;background:#c9f16e;color:#17221b;width:36px;height:36px;flex:0 0 36px;border-radius:50%;margin-left:20px;font-size:20px;font-weight:500;transition:transform .22s ease}
 .mini-cta .contact-button.nl-venom-cta:hover .nl-venom-arrow{transform:rotate(45deg)}
+.mini-cta .contact-button.nl-venom-cta.nl-grab-active{filter:brightness(1.18);box-shadow:inset 0 2px 1px #ffffff70,inset 0 -5px 7px #0008,0 17px 34px #0a170d45,0 3px 4px #0009}
 .mini-cta .contact-button.nl-venom-cta:focus-visible{outline:3px solid #fff;outline-offset:5px}
-.nl-venom-layer{position:fixed;inset:0;width:100vw;height:100vh;z-index:12;overflow:visible;pointer-events:none;opacity:0;transition:opacity .14s ease;contain:layout style}
+.nl-venom-layer{position:fixed;inset:0;width:100vw;height:100vh;z-index:9999;overflow:visible;pointer-events:none;opacity:0;transition:opacity .14s ease;contain:layout style}
 .nl-venom-layer.nl-on{opacity:1}
-.nl-venom-layer .nl-venom-thread{fill:#080b09;stroke:none}
-.nl-venom-layer .nl-venom-hair{fill:none;stroke:#0b0f0c;stroke-width:.65;stroke-linecap:round;opacity:.75}
-.nl-venom-cursor{position:fixed;left:0;top:0;z-index:16;pointer-events:none;width:38px;height:48px;display:none;filter:drop-shadow(0 2px 1px #0005);will-change:transform}
-body.nl-venom-follow .nl-venom-cursor{display:block}
-body.nl-venom-follow,body.nl-venom-follow *{cursor:none!important}
+.nl-venom-layer .nl-venom-thread{fill:#080b09;stroke:#080b09;stroke-width:.6}
+.nl-venom-layer .nl-venom-hair{fill:none;stroke:#0b0f0c;stroke-width:.3;stroke-linecap:round;opacity:.82}
 @media(max-width:700px){.mini-cta .contact-button.nl-venom-cta{min-width:0;width:100%;min-height:67px;padding:17px 22px}}
-@media(hover:none),(pointer:coarse){.nl-venom-layer,.nl-venom-cursor{display:none!important}}
-@media(prefers-reduced-motion:reduce){.nl-venom-layer,.nl-venom-cursor{display:none!important}.mini-cta .contact-button.nl-venom-cta .nl-venom-arrow{transition:none}}
+@media(prefers-reduced-motion:reduce){.nl-venom-layer{display:none!important}.mini-cta .contact-button.nl-venom-cta .nl-venom-arrow{transition:none}}

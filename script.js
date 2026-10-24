@@ -61,10 +61,9 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorA
  anchor.innerHTML='<span class="nl-venom-label">Start a conversation</span><span class="nl-venom-arrow" aria-hidden="true">↗</span>';
  anchor.setAttribute('aria-label','Start a conversation');
  anchor.setAttribute('href','contact.html');
- const fine=matchMedia('(hover:hover) and (pointer:fine)');
  const motion=matchMedia('(prefers-reduced-motion: reduce)');
- if(!fine.matches||motion.matches)return;
- const ns='http://www.w3.org/2000/svg',N=7;
+ if(motion.matches)return;
+ const ns='http://www.w3.org/2000/svg',N=18;
  const svg=document.createElementNS(ns,'svg');
  svg.setAttribute('class','nl-venom-layer');svg.setAttribute('aria-hidden','true');
  svg.setAttribute('width','100%');svg.setAttribute('height','100%');
@@ -73,15 +72,13 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorA
   const p=document.createElementNS(ns,'path');p.setAttribute('class','nl-venom-thread');svg.append(p);paths.push(p);
   const h=document.createElementNS(ns,'path');h.setAttribute('class','nl-venom-hair');svg.append(h);hairs.push(h);
  }
- const glove=document.createElementNS(ns,'svg');glove.setAttribute('class','nl-venom-cursor');glove.setAttribute('viewBox','0 0 42 54');glove.setAttribute('aria-hidden','true');
- glove.innerHTML='<path d="M9 29V10c0-4 2-6 5-6s5 2 5 6v13c2-3 6-4 8-1 2-2 6-1 7 2 5-1 7 3 7 7v10c0 6-5 11-12 11H18c-6 0-10-3-13-8L1 38c-2-4 1-8 4-8 2 0 3 1 4 3Z" fill="#fbfaf5" stroke="#151816" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/><path d="M19 23v13M27 23v12M34 25v10" stroke="#4c4e49" stroke-width="1.65" stroke-linecap="round" fill="none"/>';
- document.body.append(svg,glove);
+ document.body.append(svg);
  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
  const smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
  const dist=(x,y)=>Math.hypot(x,y);
  let m={x:-1000,y:-1000},lastMouse={x:-1000,y:-1000};
  let glow=0,engaged=false,held=false,grabAt=0,releaseUntil=0,running=false,prev=performance.now(),demo=false,t=0;
- const state=Array.from({length:N},(_,i)=>({x:0,y:0,vx:0,vy:0,base:0,phase:i*1.67,w:[4.0,2.0,6.0,3.0,5.4,2.25,3.25][i],offset:(i-(N-1)/2)*6.0}));
+ const state=Array.from({length:N},(_,i)=>({x:0,y:0,vx:0,vy:0,base:0,phase:i*1.67,w:[3.2,2.0,4.3,2.6,4.0,2.15,2.9][i%7],offset:(i-(N-1)/2)*4.2}));
  function closest(rect,x,y){
   const cx=clamp(x,rect.left+16,rect.right-16),cy=clamp(y,rect.top+15,rect.bottom-15);
   const dx=x-clamp(x,rect.left,rect.right),dy=y-clamp(y,rect.top,rect.bottom);
@@ -107,8 +104,8 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorA
    const u=j/steps,curve=u*u*(3-2*u);
    const offset=drift*Math.sin(u*Math.PI)*(.4+.6*u)+Math.sin((u*1.55+clock*.0006+phase)*Math.PI*2)*Math.sin(u*Math.PI)*Math.min(2.4,L*.015);
    const x=a.x+dx*curve+nx*offset,y=a.y+dy*curve+ny*offset;
-   const taper=(1-u)**.9;let width=w*(.04+1.6*taper) + (.30*Math.sin(u*12+phase)*Math.sin(u*Math.PI));
-   width=Math.max(.22,width);upper.push([x+nx*width,y+ny*width]);lower.push([x-nx*width,y-ny*width]);
+   const taper=(1-u)**.9;let width=w*(.035+.68*taper) + (.12*Math.sin(u*12+phase)*Math.sin(u*Math.PI));
+   width=Math.max(.14,width);upper.push([x+nx*width,y+ny*width]);lower.push([x-nx*width,y-ny*width]);
   }
   const pts=upper.concat(lower.reverse());return 'M'+pts.map(v=>v.map(n=>n.toFixed(1)).join(',')).join('L')+'Z';
  }
@@ -123,22 +120,24 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorA
     m.y=r.bottom+95+Math.sin(k*2.1)*60*amplitude;
   }
   const nearest=closest(r,m.x,m.y),d=nearest.dist;
-  const inRange=d<290 && m.y>r.top-340&&m.y<r.bottom+340;
+  const inRange=d<360 && m.y>r.top-410&&m.y<r.bottom+410;
   if(inRange&& !engaged){engaged=true;grabAt=now;}
   if(!inRange&&engaged){engaged=false;held=false;releaseUntil=now+380;}
-  let power=inRange ? 1-smooth(135,290,d) : Math.max(0,(releaseUntil-now)/380);
-  const grab=engaged && d<140;
+  let power=inRange ? 1-smooth(155,360,d) : Math.max(0,(releaseUntil-now)/380);
+  const grab=engaged && d<170;
+  const pull=1-smooth(35,360,d),towardX=m.x-(r.left+r.right)/2,towardY=m.y-(r.top+r.bottom)/2;
+  const towardLength=Math.hypot(towardX,towardY)||1;
+  anchor.style.setProperty('--nl-pull-x',`${towardX/towardLength*14*pull}px`);
+  anchor.style.setProperty('--nl-pull-y',`${towardY/towardLength*14*pull}px`);
+  anchor.style.setProperty('--nl-grab-scale',String(1+.055*pull));
+  anchor.classList.toggle('nl-grab-active',grab);
   const tickGoo=power>0 || releaseUntil>now;
   glow += ((tickGoo?1:0)-glow)*Math.min(1,.17*dt);
-  svg.classList.toggle('nl-on',glow>.005);
-  // Only hide native cursor while within this section's interactive vicinity.
-  const activeCursor=inRange&&!demo&&m.x>r.left-290&&m.x<r.right+290;
-  document.body.classList.toggle('nl-venom-follow',activeCursor);
-  if(inRange){glove.style.transform=`translate3d(${m.x-9}px,${m.y-7}px,0) rotate(${Math.sin(t*.04)*2.2}deg)`;glove.style.opacity=String(clamp((290-d)/80,0,1));}
+  svg.classList.toggle('nl-on',inRange||releaseUntil>now);
   let allRest=true;
   for(let i=0;i<N;i++){
    const s=state[i],a=attach(r,m,i);
-   const elastic=grab?1:clamp((290-d)/150,0,1);
+   const elastic=grab?1:clamp((360-d)/205,0,1);
    const fingerOffsets=[[-14,-22],[-6,-26],[3,-24],[12,-20],[16,-11],[-12,-6],[8,2]];
    const targetX=m.x+fingerOffsets[i][0],targetY=m.y+fingerOffsets[i][1];
    let goal={x:a.x+(targetX-a.x)*elastic,y:a.y+(targetY-a.y)*elastic};
@@ -167,9 +166,11 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorA
   if(glow>.02 || (inRange||releaseUntil>now)||!allRest){running=true;requestAnimationFrame(frame)}
   else close();
  }
- function close(){svg.classList.remove('nl-on');document.body.classList.remove('nl-venom-follow');engaged=false;held=false;for(let i=0;i<N;i++){paths[i].setAttribute('d','');hairs[i].setAttribute('d','');} }
+ function close(){svg.classList.remove('nl-on');engaged=false;held=false;anchor.classList.remove('nl-grab-active');anchor.style.setProperty('--nl-pull-x','0px');anchor.style.setProperty('--nl-pull-y','0px');anchor.style.setProperty('--nl-grab-scale','1');for(let i=0;i<N;i++){paths[i].setAttribute('d','');hairs[i].setAttribute('d','');} }
  function start(){if(!running){running=true;prev=performance.now();requestAnimationFrame(frame)}}
  function move(e){if(demo)demo=false; m.x=e.clientX;m.y=e.clientY;start();}
+ anchor.addEventListener('pointerenter',move,{passive:true});
+ anchor.addEventListener('pointermove',move,{passive:true});
  document.addEventListener('pointermove',move,{passive:true});
  document.addEventListener('pointerleave',()=>{m.x=-1000;m.y=-1000;start()});
  window.addEventListener('blur',()=>{m.x=-1000;m.y=-1000;demo=false;start()});
@@ -178,26 +179,3 @@ if(!reduce&&window.matchMedia('(pointer:fine)').matches){document.querySelectorA
  // Public preview control only. No looping animation on a production site.
  window.NexLynkVenomDemo=()=>{demo=performance.now();start()};
 })();
-
-// NexLynkSolutions — WhatsApp Integration
-(() => {
-  const whatsappNumber = "923288192681";
-
-  const message =
-    "Hi NexLynkSolutions! I'm interested in your Design or Business Development services. I'd like to discuss a project.";
-
-  const whatsappUrl =
-    `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-
-  document.querySelectorAll(".mini-cta .contact-button")
-    .forEach((button) => {
-      button.href = whatsappUrl;
-      button.target = "_blank";
-      button.rel = "noopener noreferrer";
-      button.setAttribute(
-        "aria-label",
-        "Start a conversation on WhatsApp"
-      );
-    });
-})();
-
