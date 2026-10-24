@@ -223,3 +223,25 @@ function initVenomCTA(anchor){
  motion.addEventListener('change',reset);
 }
 document.querySelectorAll('.mini-cta .contact-button').forEach(initVenomCTA);
+
+// NexLynkSolutions — WhatsApp Integration
+(() => {
+  const whatsappNumber = "923288192681";
+
+  const message =
+    "Hi NexLynkSolutions! I'm interested in your Design or Business Development services. I'd like to discuss a project.";
+
+  const whatsappUrl =
+    `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+
+  document.querySelectorAll(".mini-cta .contact-button")
+    .forEach((button) => {
+      button.href = whatsappUrl;
+      button.target = "_blank";
+      button.rel = "noopener noreferrer";
+      button.setAttribute(
+        "aria-label",
+        "Start a conversation on WhatsApp"
+      );
+    });
+})();
